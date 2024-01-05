@@ -23,7 +23,7 @@
   flex-direction: row-reverse;
   justify-content: center;
   align-items: center;
-  height: 100%;
+  height: 100%; 
 }
 .left-panel h2{
   padding-left:20px ;
@@ -70,12 +70,12 @@
 
 .summary-content-container {
   opacity: 0;
-  overflow: hidden;
-  position: relative;
+  transition: transform 0.5s ease-in-out;
 }
 
 .summary-content-container.show {
   opacity: 1;
+
 }
 .summary-content-container.show ul{
   list-style: none;

@@ -1,8 +1,9 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useState} from 'react';
 import './style.css';
 import Tooltip from '@mui/material/Tooltip';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectSlides, selectCurrentSlide, selectUserSelections, setSlides, setCurrentSlide, setUserSelections } from '../../redux/slices/carouselSlice';
+import { selectSlides, selectCurrentSlide, selectUserSelections, setSlides, setCurrentSlide, setUserSelections} from '../../redux/carousel/carouselSlice';
+import {submitSummaryData} from "../../redux/carousel/carouselThunks"
 
 interface Option {
   name: string;
@@ -20,6 +21,7 @@ interface CarouselProps {
 }
 
 const Carousel: React.FC<CarouselProps> = ({ initialSlides }) => {
+  const [state, setState]= useState<any>(null);
   const dispatch = useDispatch();
   const slides = useSelector(selectSlides);
   const currentSlide = useSelector(selectCurrentSlide);
@@ -39,11 +41,6 @@ const Carousel: React.FC<CarouselProps> = ({ initialSlides }) => {
     dispatch(setCurrentSlide(nextIndex));
   };
 
-  // const prevSlide = () => {
-  //   const prevIndex = (currentSlide - 1 + slides.length) % slides.length;
-  //   dispatch(setCurrentSlide(prevIndex));
-  // };
-
   useEffect(() => {
     const fetchSlides = async () => {
       if (initialSlides) {
@@ -54,23 +51,39 @@ const Carousel: React.FC<CarouselProps> = ({ initialSlides }) => {
     fetchSlides();
   }, [initialSlides, dispatch]);
 
-  const renderSummaryContent = () => {
-    const showSummaryClass = slides[currentSlide]?.summary ? 'show' : '';
+  useEffect(()=>{
+  if(slides[currentSlide]?.summary){
+    const formattedSelections = Object.entries(userSelections).map(([slideIndex, selectedOption]) => {
+      const currentSlideIndex = parseInt(slideIndex, 10);
+      const question = slides[currentSlideIndex]?.question || ' ';
+      return { question, answer: selectedOption };
+    });
+    setState(formattedSelections);
+  }
+  
+  },[slides[currentSlide]?.summary, userSelections, slides]);
 
-    return (
+  useEffect(()=>{
+    dispatch(submitSummaryData(state) as any);
+  },[state]);
+
+
+  const renderSummaryContent = useCallback(() => {
+    const isSummaryVisible = slides[currentSlide]?.summary;
+    const showSummaryClass = isSummaryVisible ? 'show' : '';
+    return (  
       <div className={`summary-content-container ${showSummaryClass}`}>
         <ul>
-          {Object.entries(userSelections).map(([slideIndex, selectedOption]) => (
-            <li key={slideIndex} className="reveal">
-              <strong>{slides[parseInt(slideIndex, 10)].question}:</strong> <span>{selectedOption}</span>
+          {state && state.map(({ question, answer } :any, index :number) => (
+            <li key={index} className="reveal">
+              <strong>{question}:</strong> <span>{answer}</span>
             </li>
           ))}
         </ul>
       </div>
     );
-  };
-
-
+  }
+  ,[currentSlide])
 
   return (
     <div className="vertical-carousel">

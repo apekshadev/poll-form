@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { RootState } from '../store';
-
+import { submitSummaryData } from './carouselThunks';
 interface Option {
   name: string;
   icon: string;
@@ -24,6 +24,8 @@ const initialState: CarouselState = {
   userSelections: {},
 };
 
+
+
 export const carouselSlice = createSlice({
   name: 'carousel',
   initialState,
@@ -37,7 +39,11 @@ export const carouselSlice = createSlice({
     setUserSelections: (state, action: PayloadAction<{ [key: number]: string }>) => {
       state.userSelections = action.payload;
     },
-
+  },
+  extraReducers: (builder) => {
+    builder.addCase(submitSummaryData.fulfilled, (state, action) => {
+      state.userSelections = {};
+    });
   },
 });
 
