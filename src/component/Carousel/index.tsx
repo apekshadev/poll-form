@@ -43,7 +43,7 @@ const Carousel: React.FC<CarouselProps> = ({ initialSlides }) => {
   //   const prevIndex = (currentSlide - 1 + slides.length) % slides.length;
   //   dispatch(setCurrentSlide(prevIndex));
   // };
-  
+
   useEffect(() => {
     const fetchSlides = async () => {
       if (initialSlides) {
@@ -56,6 +56,7 @@ const Carousel: React.FC<CarouselProps> = ({ initialSlides }) => {
 
   const renderSummaryContent = () => {
     const showSummaryClass = slides[currentSlide]?.summary ? 'show' : '';
+
     return (
       <div className={`summary-content-container ${showSummaryClass}`}>
         <ul>
@@ -68,8 +69,9 @@ const Carousel: React.FC<CarouselProps> = ({ initialSlides }) => {
       </div>
     );
   };
-  
- 
+
+
+
   return (
     <div className="vertical-carousel">
       <div className="left-panel">
@@ -93,7 +95,7 @@ const Carousel: React.FC<CarouselProps> = ({ initialSlides }) => {
               <Tooltip key={index} title={option.name} arrow>
                 <span
                   className="option-icon"
-                  onClick={() => {handleOptionClick(option); nextSlide();}}
+                  onClick={() => { handleOptionClick(option); nextSlide(); }}
                 >
                   {option.icon}
                 </span>
