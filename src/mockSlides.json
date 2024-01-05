@@ -1,0 +1,37 @@
+[
+    {
+      "question": "Did the solution meet the project's objectives, or were there any missed points?",
+      "options": [
+        { "name": "Met objectives well", "icon": "👍" },
+        { "name": "Partial alignment", "icon": "🤔"  },
+        { "name": "Missed some key points", "icon": "👎" }
+      ]
+    },
+    {
+      "question": "Share your thoughts on the tools and technologies used for the task.",
+      "options": [
+        { "name": "Satisfactory", "icon":  "👍" },
+        { "name": "Neutral", "icon": "🤔" },
+        { "name": "Problematic", "icon": "👎" }
+      ]
+    },
+    {
+      "question": "Share your thoughts on the time allocated for the task.",
+      "options": [
+        { "name": "Sufficient", "icon":  "👍" },
+        { "name": "Neutral", "icon": "🤔" },
+        { "name": "Insufficient", "icon": "👎" }
+      ]
+    },
+    {
+      "question": "How would you summarize your overall experience with this task?",
+      "options": [
+        { "name": "Good", "icon":  "👍" },
+        { "name": "Thinking", "icon":"🤔" },
+        { "name": "Bad", "icon": "👎" }
+      ]
+    },
+    {
+      "summary": true
+    }
+  ]
