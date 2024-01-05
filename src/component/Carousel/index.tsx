@@ -1,9 +1,9 @@
-import React, { useCallback, useEffect, useState} from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import './style.css';
 import Tooltip from '@mui/material/Tooltip';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectSlides, selectCurrentSlide, selectUserSelections, setSlides, setCurrentSlide, setUserSelections} from '../../redux/carousel/carouselSlice';
-import {submitSummaryData} from "../../redux/carousel/carouselThunks"
+import { selectSlides, selectCurrentSlide, selectUserSelections, setSlides, setCurrentSlide, setUserSelections } from '../../redux/carousel/carouselSlice';
+import { submitSummaryData } from "../../redux/carousel/carouselThunks"
 
 interface Option {
   name: string;
@@ -21,12 +21,11 @@ interface CarouselProps {
 }
 
 const Carousel: React.FC<CarouselProps> = ({ initialSlides }) => {
-  const [state, setState]= useState<any>(null);
   const dispatch = useDispatch();
   const slides = useSelector(selectSlides);
   const currentSlide = useSelector(selectCurrentSlide);
   const userSelections = useSelector(selectUserSelections);
-
+  const [formattedSelections, setFormattedSelections] = useState<{ question: string; answer: string }[]>([]);
   const goToSlide = (index: number) => {
     dispatch(setCurrentSlide(index));
   };
@@ -51,30 +50,13 @@ const Carousel: React.FC<CarouselProps> = ({ initialSlides }) => {
     fetchSlides();
   }, [initialSlides, dispatch]);
 
-  useEffect(()=>{
-  if(slides[currentSlide]?.summary){
-    const formattedSelections = Object.entries(userSelections).map(([slideIndex, selectedOption]) => {
-      const currentSlideIndex = parseInt(slideIndex, 10);
-      const question = slides[currentSlideIndex]?.question || ' ';
-      return { question, answer: selectedOption };
-    });
-    setState(formattedSelections);
-  }
-  
-  },[slides[currentSlide]?.summary, userSelections, slides]);
-
-  useEffect(()=>{
-    dispatch(submitSummaryData(state) as any);
-  },[state]);
-
-
-  const renderSummaryContent = useCallback(() => {
+  const renderSummaryContent = () => {
     const isSummaryVisible = slides[currentSlide]?.summary;
     const showSummaryClass = isSummaryVisible ? 'show' : '';
-    return (  
+    return (
       <div className={`summary-content-container ${showSummaryClass}`}>
         <ul>
-          {state && state.map(({ question, answer } :any, index :number) => (
+          {formattedSelections?.map(({ question, answer }, index) => (
             <li key={index} className="reveal">
               <strong>{question}:</strong> <span>{answer}</span>
             </li>
@@ -82,8 +64,25 @@ const Carousel: React.FC<CarouselProps> = ({ initialSlides }) => {
         </ul>
       </div>
     );
-  }
-  ,[currentSlide])
+  };
+  
+
+  useEffect(() => {
+    if (slides[currentSlide]?.summary) {
+      const updatedFormattedSelections = Object.entries(userSelections).map(([slideIndex, selectedOption]) => {
+        const currentSlideIndex = parseInt(slideIndex, 10);
+        const question = slides[currentSlideIndex]?.question || ' ';
+        return { question, answer: selectedOption };
+      });
+      setFormattedSelections(updatedFormattedSelections);
+    }
+  }, [currentSlide, slides, userSelections]);
+
+  useEffect(() => {
+    if (slides[currentSlide]?.summary && formattedSelections.length > 0) {
+      dispatch(submitSummaryData(formattedSelections) as any);
+    }
+  }, [currentSlide, slides, formattedSelections, dispatch]);
 
   return (
     <div className="vertical-carousel">
@@ -101,7 +100,7 @@ const Carousel: React.FC<CarouselProps> = ({ initialSlides }) => {
       </div>
       <div className="right-panel">
         <p>
-          {slides[currentSlide]?.summary ? (
+          {formattedSelections.length > 0 ? (
             renderSummaryContent()
           ) : (
             slides[currentSlide]?.options?.map((option, index) => (

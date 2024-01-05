@@ -40,11 +40,7 @@ export const carouselSlice = createSlice({
       state.userSelections = action.payload;
     },
   },
-  extraReducers: (builder) => {
-    builder.addCase(submitSummaryData.fulfilled, (state, action) => {
-      state.userSelections = {};
-    });
-  },
+
 });
 
 export const { setSlides, setCurrentSlide, setUserSelections } = carouselSlice.actions;
