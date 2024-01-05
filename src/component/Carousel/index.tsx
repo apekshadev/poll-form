@@ -1,9 +1,16 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import './style.css';
-import Tooltip from '@mui/material/Tooltip';
-import { useDispatch, useSelector } from 'react-redux';
-import { selectSlides, selectCurrentSlide, selectUserSelections, setSlides, setCurrentSlide, selectSuccessMessage, setUserSelections } from '../../redux/carousel/carouselSlice';
-import { submitSummaryData } from "../../redux/carousel/carouselThunks"
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import "./style.css";
+
+import { useDispatch, useSelector } from "react-redux";
+import {
+  selectSlides,
+  selectCurrentSlide,
+  selectUserSelections,
+  setSlides,
+  setUserSelections,
+} from "../../redux/carousel/carouselSlice";
+import { submitSummaryData } from "../../redux/carousel/carouselThunks";
+import VerticalSlide from "./VerticalSlide";
 
 interface Option {
   name: string;
@@ -23,22 +30,36 @@ interface CarouselProps {
 const Carousel: React.FC<CarouselProps> = ({ initialSlides }) => {
   const dispatch = useDispatch();
   const slides = useSelector(selectSlides);
-  const currentSlide = useSelector(selectCurrentSlide);
   const userSelections = useSelector(selectUserSelections);
-  const successMessage = useSelector(selectSuccessMessage);
-  const [formattedSelections, setFormattedSelections] = useState<{ question: string; answer: string }[]>([]);
-  const goToSlide = (index: number) => {
-    dispatch(setCurrentSlide(index));
-  };
+  const [formattedSelections, setFormattedSelections] = useState<
+    { question: string; answer: string }[]
+  >([]);
 
-  const handleOptionClick = (option: Option) => {
-    dispatch(setUserSelections({ ...userSelections, [currentSlide]: option.name }));
-  };
+  const verticalCarouselRef = useRef<HTMLDivElement | null>(null);
 
+  const [animatedSlides, setAnimatedSlides] = useState<JSX.Element[]>([]);
+  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
 
-  const nextSlide = () => {
-    const nextIndex = (currentSlide + 1) % slides.length;
-    dispatch(setCurrentSlide(nextIndex));
+  const nextSlide = useCallback(() => {
+    const nextIndex = (currentSlideIndex + 1) % slides.length;
+    setCurrentSlideIndex(nextIndex);
+  }, [currentSlideIndex, slides.length]);
+
+  const onOptionClick = useCallback(
+    (option: Option) => {
+      dispatch(
+        setUserSelections({
+          ...userSelections,
+          [currentSlideIndex]: option.name,
+        })
+      );
+      nextSlide();
+    },
+    [currentSlideIndex, dispatch, nextSlide, userSelections]
+  );
+
+  const moveToSlide = (index: number) => {
+    setCurrentSlideIndex(index);
   };
 
   useEffect(() => {
@@ -51,80 +72,56 @@ const Carousel: React.FC<CarouselProps> = ({ initialSlides }) => {
     fetchSlides();
   }, [initialSlides, dispatch]);
 
-  const renderSuccessMessage = () => {
-    return successMessage ? (
-      <div className="success-box"><span className="success-message">{successMessage}</span></div>
-    ) : null;
-  };
-  const renderSummaryContent = () => {
-    const isSummaryVisible = slides[currentSlide]?.summary;
-    const showSummaryClass = isSummaryVisible ? 'show' : '';
-    return (
-      <div className={`summary-content-container ${showSummaryClass}`}>
-        <ul>
-          {formattedSelections?.map(({ question, answer }, index) => (
-            <li key={index} className="reveal">
-              <strong>{question}:</strong> <span>{answer}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
-    );
-  };
-
+  useEffect(() => {
+    if (slides.length > 0) {
+      const height = verticalCarouselRef.current?.clientHeight || 0;
+      const animatedSlides = slides.map((slide, index) => (
+        <VerticalSlide
+          key={index}
+          question={slide.question || "Summary"}
+          options={slide.options || []}
+          onOptionClick={onOptionClick}
+          isVisible={index}
+          currentSlide={currentSlideIndex}
+          height={height}
+          isFinalStep={!!slides[currentSlideIndex]?.summary}
+        />
+      ));
+      setAnimatedSlides(animatedSlides);
+    }
+  }, [slides, currentSlideIndex, onOptionClick]);
 
   useEffect(() => {
-    if (slides[currentSlide]?.summary) {
-      const updatedFormattedSelections = Object.entries(userSelections).map(([slideIndex, selectedOption]) => {
-        const currentSlideIndex = parseInt(slideIndex, 10);
-        const question = slides[currentSlideIndex]?.question || ' ';
-        return { question, answer: selectedOption };
-      });
+    if (slides[currentSlideIndex]?.summary) {
+      const updatedFormattedSelections = Object.entries(userSelections).map(
+        ([slideIndex, selectedOption]) => {
+          const currentSlideIndex = parseInt(slideIndex, 10);
+          const question = slides[currentSlideIndex]?.question || " ";
+          return { question, answer: selectedOption };
+        }
+      );
       setFormattedSelections(updatedFormattedSelections);
     }
-  }, [currentSlide, slides, userSelections]);
+  }, [currentSlideIndex, slides, userSelections]);
 
   useEffect(() => {
-    if (slides[currentSlide]?.summary && formattedSelections.length > 0) {
+    if (slides[currentSlideIndex]?.summary && formattedSelections.length > 0) {
+      console.log(console.log('Calling API...'))
       dispatch(submitSummaryData(formattedSelections) as any);
-      
     }
-  }, [currentSlide, slides, formattedSelections, dispatch]);
+  }, [currentSlideIndex, slides, formattedSelections, dispatch]);
 
   return (
-    <div className="vertical-carousel">
-      <div className="left-panel">
-        <h2>{slides[currentSlide]?.question || 'Summary'}</h2>
-        <div className="pagination">
-          {slides.map((slide, index) => (
-            <span
-              key={index}
-              onClick={() => goToSlide(index)}
-              className={index === currentSlide ? 'active' : ''}
-            ></span>
-          ))}
-        </div>
-      </div>
-      <div className="right-panel">
-        <p>
-          {formattedSelections.length > 0 ? (
-           <>
-              {renderSummaryContent()}
-              {renderSuccessMessage()}
-            </>
-          ) : (
-            slides[currentSlide]?.options?.map((option, index) => (
-              <Tooltip key={index} title={option.name} arrow>
-                <span
-                  className="option-icon"
-                  onClick={() => { handleOptionClick(option); nextSlide(); }}
-                >
-                  {option.icon}
-                </span>
-              </Tooltip>
-            ))
-          )}
-        </p>
+    <div className="vertical-carousel" ref={verticalCarouselRef}>
+      {animatedSlides.length > 0 && animatedSlides}
+      <div className="pagination">
+        {slides.map((slide, index) => (
+          <span
+            key={index}
+            onClick={() => moveToSlide(index)}
+            className={index === currentSlideIndex ? "active" : ""}
+          ></span>
+        ))}
       </div>
     </div>
   );

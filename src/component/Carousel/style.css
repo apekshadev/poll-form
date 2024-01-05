@@ -2,12 +2,13 @@
 
 .vertical-carousel {
   display: flex;
+  flex-direction: column;
   overflow-y: hidden; 
   scroll-behavior: smooth;
   width: 100%;
   height: 100%;
   box-shadow: var(--box-shadow);
-
+position: relative;
 }
 
 
@@ -41,6 +42,11 @@
   flex-direction: column;
   gap: 8px;
   margin-top: 10px;
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+
 }
 
 .pagination span {
@@ -69,26 +75,21 @@
 }
 
 .summary-content-container {
-  opacity: 0;
   transition: transform 0.5s ease-in-out;
 }
 
-.summary-content-container.show {
-  opacity: 1;
-
-}
-.summary-content-container.show ul{
+.summary-content-container ul{
   list-style: none;
   padding: 0;
   margin: 0;
 }
-.summary-content-container.show ul li{
+.summary-content-container ul li{
     margin: 12px 5px;
 }
-.summary-content-container.show ul li span{
+.summary-content-container ul li span{
   color: #999999;
   }
-  .summary-content-container.show ul li.reveal {
+  .summary-content-container ul li.reveal {
     opacity: 1;
   }
   .success-box{
@@ -102,3 +103,27 @@
     font-weight: 600;
     color:var(--success);
   }
+  .vertical-slide {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 1;
+  }
+  
+  .options-container {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
+  }
+
+  .option {
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  

@@ -22,7 +22,7 @@ export const submitSummaryData = createAsyncThunk(
       if (!response.ok) {
         throw new Error('Failed to submit summary data');
       }
-      const successMessage = 'Summary data submitted successfully';
+      const successMessage = 'Polls Summary submitted successfully';
       return successMessage;
     } catch (error:any) {
       console.error('Error submitting summary data:', error.message);
