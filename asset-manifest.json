@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/poll-from/static/css/main.f8980007.css",
+    "main.js": "/poll-from/static/js/main.fcaa8716.js",
+    "static/js/787.983274a1.chunk.js": "/poll-from/static/js/787.983274a1.chunk.js",
+    "index.html": "/poll-from/index.html",
+    "main.f8980007.css.map": "/poll-from/static/css/main.f8980007.css.map",
+    "main.fcaa8716.js.map": "/poll-from/static/js/main.fcaa8716.js.map",
+    "787.983274a1.chunk.js.map": "/poll-from/static/js/787.983274a1.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.f8980007.css",
+    "static/js/main.fcaa8716.js"
+  ]
+}
