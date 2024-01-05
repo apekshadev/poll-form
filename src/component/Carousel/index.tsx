@@ -65,7 +65,7 @@ const Carousel: React.FC<CarouselProps> = ({ initialSlides }) => {
       </div>
     );
   };
-  
+
 
   useEffect(() => {
     if (slides[currentSlide]?.summary) {
