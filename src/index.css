@@ -37,4 +37,6 @@ html, body {
   --option-icon-size: 32px;
   --option-icon-hover-scale: 1.2;
   --transition-duration: 0.5s;
+  --success :green;
+  --success-bg:#ddd9d9;
 }

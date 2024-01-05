@@ -1,5 +1,6 @@
 
 import { createAsyncThunk } from '@reduxjs/toolkit';
+const POLL_URL = "https://6597e071668d248edf23975c.mockapi.io/surveys/v1/polls";
 
 export const submitSummaryData = createAsyncThunk(
   'carousel/submitSummaryData',
@@ -10,7 +11,7 @@ export const submitSummaryData = createAsyncThunk(
         answer,
       }));
 
-      const response = await fetch('https://6597e071668d248edf23975c.mockapi.io/surveys/v1/polls', {
+      const response = await fetch(POLL_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -21,7 +22,8 @@ export const submitSummaryData = createAsyncThunk(
       if (!response.ok) {
         throw new Error('Failed to submit summary data');
       }
-      console.log('Summary data submitted successfully');
+      const successMessage = 'Summary data submitted successfully';
+      return successMessage;
     } catch (error:any) {
       console.error('Error submitting summary data:', error.message);
       throw error;

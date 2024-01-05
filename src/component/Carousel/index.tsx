@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import './style.css';
 import Tooltip from '@mui/material/Tooltip';
 import { useDispatch, useSelector } from 'react-redux';
-import { selectSlides, selectCurrentSlide, selectUserSelections, setSlides, setCurrentSlide, setUserSelections } from '../../redux/carousel/carouselSlice';
+import { selectSlides, selectCurrentSlide, selectUserSelections, setSlides, setCurrentSlide, selectSuccessMessage, setUserSelections } from '../../redux/carousel/carouselSlice';
 import { submitSummaryData } from "../../redux/carousel/carouselThunks"
 
 interface Option {
@@ -25,6 +25,7 @@ const Carousel: React.FC<CarouselProps> = ({ initialSlides }) => {
   const slides = useSelector(selectSlides);
   const currentSlide = useSelector(selectCurrentSlide);
   const userSelections = useSelector(selectUserSelections);
+  const successMessage = useSelector(selectSuccessMessage);
   const [formattedSelections, setFormattedSelections] = useState<{ question: string; answer: string }[]>([]);
   const goToSlide = (index: number) => {
     dispatch(setCurrentSlide(index));
@@ -50,6 +51,11 @@ const Carousel: React.FC<CarouselProps> = ({ initialSlides }) => {
     fetchSlides();
   }, [initialSlides, dispatch]);
 
+  const renderSuccessMessage = () => {
+    return successMessage ? (
+      <div className="success-box"><span className="success-message">{successMessage}</span></div>
+    ) : null;
+  };
   const renderSummaryContent = () => {
     const isSummaryVisible = slides[currentSlide]?.summary;
     const showSummaryClass = isSummaryVisible ? 'show' : '';
@@ -81,6 +87,7 @@ const Carousel: React.FC<CarouselProps> = ({ initialSlides }) => {
   useEffect(() => {
     if (slides[currentSlide]?.summary && formattedSelections.length > 0) {
       dispatch(submitSummaryData(formattedSelections) as any);
+      
     }
   }, [currentSlide, slides, formattedSelections, dispatch]);
 
@@ -101,7 +108,10 @@ const Carousel: React.FC<CarouselProps> = ({ initialSlides }) => {
       <div className="right-panel">
         <p>
           {formattedSelections.length > 0 ? (
-            renderSummaryContent()
+           <>
+              {renderSummaryContent()}
+              {renderSuccessMessage()}
+            </>
           ) : (
             slides[currentSlide]?.options?.map((option, index) => (
               <Tooltip key={index} title={option.name} arrow>
