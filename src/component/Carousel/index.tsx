@@ -9,34 +9,35 @@ import {
   setSlides,
   setUserSelections,
 } from "../../redux/carousel/carouselSlice";
+import { FormattedSelection, Option, Slide } from "../../types/types";
 import { submitSummaryData } from "../../redux/carousel/carouselThunks";
 import VerticalSlide from "./VerticalSlide";
 
-interface Option {
-  name: string;
-  icon: string;
-}
+// interface Option {
+//   name: string;
+//   icon: string;
+// }
 
-interface Slide {
-  question?: string;
-  options?: Option[];
-  summary?: boolean;
-}
-
+// interface Slide {
+//   question?: string;
+//   options?: Option[];
+//   summary?: boolean;
+// }
+// interface FormattedSelection {
+//   question: string;
+//   answer: string;
+// }
 interface CarouselProps {
   initialSlides?: () => Promise<Slide[]>;
+  formattedSelections?: FormattedSelection[];
 }
 
 const Carousel: React.FC<CarouselProps> = ({ initialSlides }) => {
   const dispatch = useDispatch();
   const slides = useSelector(selectSlides);
   const userSelections = useSelector(selectUserSelections);
-  const [formattedSelections, setFormattedSelections] = useState<
-    { question: string; answer: string }[]
-  >([]);
-
+  const [formattedSelections, setFormattedSelections] = useState<FormattedSelection[]>([]);
   const verticalCarouselRef = useRef<HTMLDivElement | null>(null);
-
   const [animatedSlides, setAnimatedSlides] = useState<JSX.Element[]>([]);
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
 
@@ -63,11 +64,17 @@ const Carousel: React.FC<CarouselProps> = ({ initialSlides }) => {
   };
 
   useEffect(() => {
+    
     const fetchSlides = async () => {
-      if (initialSlides) {
-        const res = await initialSlides();
-        dispatch(setSlides(res));
+      try {
+        if (initialSlides) {
+          const res = await initialSlides();
+          dispatch(setSlides(res));
+        }
+      } catch (error) {
+        console.log(error)
       }
+   
     };
     fetchSlides();
   }, [initialSlides, dispatch]);
@@ -106,7 +113,6 @@ const Carousel: React.FC<CarouselProps> = ({ initialSlides }) => {
 
   useEffect(() => {
     if (slides[currentSlideIndex]?.summary && formattedSelections.length > 0) {
-      console.log(console.log('Calling API...'))
       dispatch(submitSummaryData(formattedSelections) as any);
     }
   }, [currentSlideIndex, slides, formattedSelections, dispatch]);
@@ -117,6 +123,7 @@ const Carousel: React.FC<CarouselProps> = ({ initialSlides }) => {
       <div className="pagination">
         {slides.map((slide, index) => (
           <span
+            id={`pagination-dot-${index}`}
             key={index}
             onClick={() => moveToSlide(index)}
             className={index === currentSlideIndex ? "active" : ""}

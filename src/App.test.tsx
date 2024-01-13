@@ -2,8 +2,11 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import App from './App';
 
-test('renders learn react link', () => {
+jest.mock('./component/PollForm', () => () => <div data-testid="mock-poll-form" />);
+
+test('renders PollForm', () => {
   render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+  const mockPollForm = screen.getByTestId('mock-poll-form');
+  expect(mockPollForm).toBeInTheDocument();
 });
+  

@@ -88,7 +88,7 @@ const VerticalSlide: React.FC<VerticalSlideProps> = ({
                                 ))}
                             </ul>
                             {successMessage ? (
-                                <div className="success-box"><span className="success-message">{successMessage}</span></div>
+                                <div className="success-box" id="success"><span className="success-message">{successMessage}</span></div>
                             ) : null}
 
                         </div>
