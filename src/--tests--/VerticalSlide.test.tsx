@@ -1,9 +1,10 @@
 import React from 'react';
-import { render as rtlRender, screen, fireEvent ,waitFor} from '@testing-library/react';
+import { render as rtlRender, fireEvent, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { configureStore, EnhancedStore } from '@reduxjs/toolkit';
 import { RootState } from '../redux/store';
 import VerticalSlide from '../component/Carousel/VerticalSlide';
+import { submitSummaryData } from '../redux/carousel/carouselThunks';
 
 jest.mock('../redux/carousel/carouselThunks', () => ({
     ...jest.requireActual('../redux/carousel/carouselThunks'),
@@ -43,6 +44,9 @@ const wrapperProvider = (
 };
 
 describe('VerticalSlide component', () => {
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
     const optionsMock = [
         { name: "Option 1", icon: "Icon1" },
         { name: "Option 2", icon: "Icon2" },
@@ -91,5 +95,19 @@ describe('VerticalSlide component', () => {
         // here used getByLabelText RTLQuery to get by aria-label 
         fireEvent.click(getByLabelText("Option 1"));
         expect(defaultProps.onOptionClick).toHaveBeenCalledWith(optionsMock[0]);
+    });
+
+    // Test 5: To Check submits summary data on final step with expected data.
+    // This test case is failed, as number of calls are showing 0 here.
+    it('submits summary data on final step', async () => {
+        const finalStepProps = { ...defaultProps, isFinalStep: true, };
+        wrapperProvider(<VerticalSlide {...finalStepProps} />);
+        await waitFor(() => {
+            const expectedSelections = [
+                { question: 'Question1', answer: 'Answer1' },
+                { question: 'Question2', answer: 'Answer2' },
+            ];
+            expect(submitSummaryData).toHaveBeenCalledWith(expectedSelections);
+        });
     });
 });
